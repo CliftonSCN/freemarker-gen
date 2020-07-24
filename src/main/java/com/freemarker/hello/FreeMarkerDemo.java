@@ -1,6 +1,6 @@
 package com.freemarker.hello;
 
-import com.freemarker.hello.enums.FileSuffix;
+import com.freemarker.hello.enums.FileInfo;
 import com.freemarker.hello.enums.ShowType;
 import com.freemarker.hello.templates.TableMeta;
 import com.sun.xml.internal.bind.v2.TODO;
@@ -23,6 +23,10 @@ import java.util.regex.Pattern;
  * @create 2020/7/20 - 12:31
  */
 public class FreeMarkerDemo {
+
+    private static final String URL = "jdbc:mysql://127.0.0.1:3306/dmc";
+    private static final String USER = "root";
+    private static final String PASSWORD = "123qwe";
 
     private static final String PROJECT_PATH = "F:\\WorkSpace\\DMC";
     private static final String BOSS_PATH = "F:\\WorkSpace\\DMC\\dmc-boss";
@@ -63,20 +67,22 @@ public class FreeMarkerDemo {
             configuration.setDirectoryForTemplateLoading(new File(TEMPLATE_PATH));
             // step3 创建数据模型
 
+            //设置通用项
             commonConfig();
 
+            //解析表所有列，并设置相关属性
             List<TableMeta> camelList = getCamelColumns();
             dataMap.put("camelColumns", camelList);
 
-//            createFile(configuration, dataMap, "TemplateController.ftl", FileSuffix.JAVA_CONTROLLER, true);
-//            createFile(configuration, dataMap, "TemplateService.ftl", FileSuffix.JAVA_SERVICE, true);
-//            createFile(configuration, dataMap, "TemplateServiceImpl.ftl", FileSuffix.JAVA_SERVICE_IMPL, true);
-//            createFile(configuration, dataMap, "TemplateControllerJs.ftl", FileSuffix.JS_CONTROLLER, false);
-//            createFile(configuration, dataMap, "TemplateHtml.ftl", FileSuffix.HTML, false);
-//            createFile(configuration, dataMap, "TemplateServiceJs.ftl", FileSuffix.JS_SERVICE, false);
-            createFile(configuration, dataMap, "TemplateMapper.ftl", FileSuffix.DB_MAPPER, true);
-            createFile(configuration, dataMap, "TemplateMapperXml.ftl", FileSuffix.DB_MAPPER_XML, true);
-//            createFile(configuration, dataMap, "zhTemplate.ftl", FileSuffix.I18N, false);
+//            createFile(configuration, dataMap, "TemplateController.ftl", FileInfo.JAVA_CONTROLLER, true);
+//            createFile(configuration, dataMap, "TemplateService.ftl", FileInfo.JAVA_SERVICE, true);
+//            createFile(configuration, dataMap, "TemplateServiceImpl.ftl", FileInfo.JAVA_SERVICE_IMPL, true);
+//            createFile(configuration, dataMap, "TemplateControllerJs.ftl", FileInfo.JS_CONTROLLER, false);
+//            createFile(configuration, dataMap, "TemplateHtml.ftl", FileInfo.HTML, false);
+//            createFile(configuration, dataMap, "TemplateServiceJs.ftl", FileInfo.JS_SERVICE, false);
+            createFile(configuration, dataMap, "TemplateMapper.ftl", FileInfo.DB_MAPPER, true);
+            createFile(configuration, dataMap, "TemplateMapperXml.ftl", FileInfo.DB_MAPPER_XML, true);
+//            createFile(configuration, dataMap, "zhTemplate.ftl", FileInfo.I18N, false);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -98,26 +104,27 @@ public class FreeMarkerDemo {
      * @param configuration
      * @param dataMap
      * @param templateName  模板文件名
-     * @param fileSuffix    生成文件后缀名
+     * @param fileInfo    生成文件后缀名
      * @param upper         生成文件首字母是否大写
      */
-    public static void createFile(Configuration configuration, Map<String, Object> dataMap, String templateName, FileSuffix fileSuffix, boolean upper) {
+    public static void createFile(Configuration configuration, Map<String, Object> dataMap, String templateName, FileInfo fileInfo, boolean upper) {
         Writer out = null;
         File docFile = null;
         try {
             // step4 加载模版文件
             Template templateController = configuration.getTemplate(templateName);
             StringBuilder fileName = new StringBuilder();
-            //生成文件名
+            //文件名定义
             if (upper) {
-                fileName.append(dataMap.get("bean")).append(fileSuffix.getSuffix());
+                fileName.append(dataMap.get("bean")).append(fileInfo.getSuffix());
             } else {
-                fileName.append(dataMap.get("lowerBean")).append(fileSuffix.getSuffix());
+                fileName.append(dataMap.get("lowerBean")).append(fileInfo.getSuffix());
             }
 
+            //计算路径
             StringBuilder path = new StringBuilder();
 
-            switch (fileSuffix) {
+            switch (fileInfo) {
                 case JAVA_CONTROLLER:
                     path.append(ABSOLUTE_API_CONTROLLER_PATH);
                     break;
@@ -137,11 +144,7 @@ public class FreeMarkerDemo {
                     path.append(ABSOLUTE_STATIC_HTML_PATH);
                     break;
                 case DB_MAPPER:
-                    path.append(TEMP_FILE_PATH);
-                    break;
                 case DB_MAPPER_XML:
-                    path.append(TEMP_FILE_PATH);
-                    break;
                 case I18N:
                     path.append(TEMP_FILE_PATH);
                     break;
@@ -167,23 +170,23 @@ public class FreeMarkerDemo {
             templateController.process(dataMap, out);
             System.out.println("^^^^^^^^^^^^^^^^^^^^^^^^" + filePath + "\\" + fileName + " 文件创建成功 !");
 
-            //不关闭，无法删除文件
+            //关闭流，以便删除临时文件
             out.close();
 
-            switch (fileSuffix) {
+            //追加文件
+            switch (fileInfo) {
                 case DB_MAPPER:
-                    appendToFile(docFile.getAbsolutePath(), ABSOLUTE_DB_MAPPER_PATH + "\\" + docFile.getName(), fileSuffix);
+                    appendToFile(docFile.getAbsolutePath(), ABSOLUTE_DB_MAPPER_PATH + "\\" + docFile.getName(), fileInfo);
                     break;
                 case DB_MAPPER_XML:
-                    appendToFile(docFile.getAbsolutePath(), ABSOLUTE_DB_MAPPER_XML_PATH + "\\" + docFile.getName(), fileSuffix);
+                    appendToFile(docFile.getAbsolutePath(), ABSOLUTE_DB_MAPPER_XML_PATH + "\\" + docFile.getName(), fileInfo);
                     break;
                 case I18N:
-                    appendToFile(docFile.getAbsolutePath(), ABSOLUTE_I18N_PATH + "\\zh.json", fileSuffix);
-                    appendToFile(docFile.getAbsolutePath(), ABSOLUTE_I18N_PATH + "\\en.json", fileSuffix);
-                    appendToFile(docFile.getAbsolutePath(), ABSOLUTE_I18N_PATH + "\\es.json", fileSuffix);
+                    appendToFile(docFile.getAbsolutePath(), ABSOLUTE_I18N_PATH + "\\zh.json", fileInfo);
+                    appendToFile(docFile.getAbsolutePath(), ABSOLUTE_I18N_PATH + "\\en.json", fileInfo);
+                    appendToFile(docFile.getAbsolutePath(), ABSOLUTE_I18N_PATH + "\\es.json", fileInfo);
                     break;
                 default:
-                    System.out.println("找不到该文件对应的后缀名");
                     break;
             }
 
@@ -201,9 +204,16 @@ public class FreeMarkerDemo {
     }
 
 
-    public static void appendToFile(String fromFile, String toFile, FileSuffix fileSuffix) {
+    /**
+     * 追加文件
+     * @param fromFile 目标文件
+     * @param toFile    追加到哪个文件
+     * @param fileInfo    文件信息
+     */
+    public static void appendToFile(String fromFile, String toFile, FileInfo fileInfo) {
 
-        int foundTimes = fileSuffix.getTimes();
+        //搜索次数
+        int foundTimes = fileInfo.getTimes();
 
         File tf = new File(toFile);
 
@@ -211,15 +221,18 @@ public class FreeMarkerDemo {
         RandomAccessFile fromRandomAccessFile = null;
         File ff = null;
         try {
-            //TODO json文件为空时的处理
+            //TODO 文件为空时的处理
 
             //找到要追加的位置
             toRandomAccessFile = new RandomAccessFile(tf, "rw");
             long fileLength = toRandomAccessFile.length();
 
             byte[] bytes = new byte[1024];
+            //第几次搜索
             int loopTime = 1;
+            //文件指针
             long pos = fileLength;
+            //从末尾开始，每次搜索1024个字节
             while (fileLength - 1024 * loopTime >= 0) {
 
                 toRandomAccessFile.seek(fileLength - 1024 * loopTime > 0 ? fileLength - 1024 * loopTime : 0);
@@ -227,7 +240,8 @@ public class FreeMarkerDemo {
                 toRandomAccessFile.read(bytes);
 
                 for (int i = bytes.length - 1; i >= 0; i--) {
-                    if (fileSuffix.getFlag() == (char) bytes[i]) {
+                    //搜索到标识，则搜索次数减一，直到0，计算出追加位置
+                    if (fileInfo.getFlag() == (char) bytes[i]) {
                         foundTimes--;
                         if (foundTimes == 0) {
                             pos -= (bytes.length - i + 1024 * (loopTime - 1));
@@ -238,42 +252,46 @@ public class FreeMarkerDemo {
 
                 loopTime++;
 
-                System.out.println(pos);
                 if (pos != fileLength) {
                     break;
                 }
 
             }
 
+            //指针定位到追加位置
             toRandomAccessFile.seek(pos + 1);
 
             //减1是为了，去掉生成文件末尾的空白char
             byte[] bytesSuffix = new byte[(int) (fileLength - pos - 1)];
 
+            //将之后的内容读出
             toRandomAccessFile.read(bytesSuffix);
-
-            ff = new File(fromFile);
-
-            fromRandomAccessFile = new RandomAccessFile(ff, "r");
 
             toRandomAccessFile.seek(pos + 1);
 
             //插入分隔符
-            if (fileSuffix.getSplit() != 0) {
-                toRandomAccessFile.writeByte(fileSuffix.getSplit());
+            if (fileInfo.getSplit() != 0) {
+                toRandomAccessFile.writeByte(fileInfo.getSplit());
             }
             //插入回车
             toRandomAccessFile.writeByte(10);
             toRandomAccessFile.writeByte(10);
 
+            //读取生成的临时文件
+            ff = new File(fromFile);
+
+            fromRandomAccessFile = new RandomAccessFile(ff, "r");
+
             bytes = new byte[(int) fromRandomAccessFile.length()];
 
             fromRandomAccessFile.read(bytes);
+
+            //写入生成代码
             toRandomAccessFile.write(bytes);
 
+            //写入末尾内容
             toRandomAccessFile.write(bytesSuffix);
 
-            bytes = null;
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -299,11 +317,16 @@ public class FreeMarkerDemo {
     }
 
     /**
+     * 抽离成通用方法
+     *
+     * {@link FreeMarkerDemo#appendToFile}
+     *
      * 将生成的i18n文件，追加到json括号内
      *
      * @param fromFile 目标文件
      * @param toFile   追加文件
      */
+    @Deprecated
     public static void appendToI18nFile(String fromFile, String toFile) {
 
         File file = new File(toFile);
@@ -333,7 +356,6 @@ public class FreeMarkerDemo {
                     }
                 }
 
-                System.out.println(pos);
                 if (pos != fileLength) {
                     break;
                 }
@@ -383,16 +405,13 @@ public class FreeMarkerDemo {
     }
 
     public static List<TableMeta> getCamelColumns() {
-        String Url = "jdbc:mysql://127.0.0.1:3306/dmc";
-        String User = "root";
-        String Password = "123qwe";
         //1.加载驱动程序
         Connection con = null;
         ArrayList<TableMeta> list = new ArrayList<TableMeta>();
         try {
             Class.forName("com.mysql.jdbc.Driver");
             //2.获得数据库链接
-            con = DriverManager.getConnection(Url, User, Password);
+            con = DriverManager.getConnection(URL, USER, PASSWORD);
 
             String catalog = con.getCatalog();
 
@@ -415,7 +434,7 @@ public class FreeMarkerDemo {
             primaryKeys.close();
 
 
-            //获取列
+            //获取所有列
             ResultSet columns = metaData.getColumns(null, "%", TABLE_NAME, "%");
             while (columns.next()) {
                 TableMeta tableMeta = new TableMeta();
@@ -472,6 +491,11 @@ public class FreeMarkerDemo {
         return list;
     }
 
+    /**
+     * 将首字母大写
+     * @param str
+     * @return
+     */
     public static String upperFirstChar(String str) {
         char[] chars = str.toCharArray();
         chars[0] -= 32;
@@ -479,7 +503,7 @@ public class FreeMarkerDemo {
     }
 
     /**
-     * 数据类型转化JAVA
+     * sql数据类型转化JAVA类型
      *
      * @param sqlType：类型名称
      * @return
@@ -523,6 +547,11 @@ public class FreeMarkerDemo {
         return ShowType.STRING;
     }
 
+    /**
+     * 集合中元素转为驼峰命名
+     * @param list
+     * @return
+     */
     public static List<String> listCamel(List<String> list) {
         ArrayList<String> camelList = new ArrayList<String>();
         for (String s : list) {

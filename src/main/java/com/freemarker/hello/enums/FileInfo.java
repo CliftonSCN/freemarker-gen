@@ -4,7 +4,7 @@ package com.freemarker.hello.enums;
  * @author Clifton
  * @create 2020/7/24 - 9:53
  */
-public enum FileSuffix {
+public enum FileInfo {
     JAVA_CONTROLLER("Controller.java"),
     JAVA_SERVICE("Service.java"),
     JAVA_SERVICE_IMPL("ServiceImpl.java"),
@@ -25,14 +25,14 @@ public enum FileSuffix {
     private int times;
 
 
-    FileSuffix(String suffix, char flag, char split, int times) {
+    FileInfo(String suffix, char flag, char split, int times) {
         this.suffix = suffix;
         this.split = split;
         this.flag = flag;
         this.times = times;
     }
 
-    FileSuffix(String suffix){
+    FileInfo(String suffix){
         this.suffix = suffix;
     }
 
