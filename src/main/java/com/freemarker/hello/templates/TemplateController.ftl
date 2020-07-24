@@ -1,4 +1,4 @@
-package ${package};
+package ${package}.control;
 
 import com.github.pagehelper.PageHelper;
 import com.zbensoft.dmc.api.common.*;

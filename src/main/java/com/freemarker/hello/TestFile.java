@@ -9,10 +9,9 @@ import java.io.File;
 public class TestFile {
 
     public static void main(String[] args) {
-        /*File file = new File("src\\main\\java\\com\\freemarker\\hello\\templates");
+        File file = new File("F:\\WorkSpace\\freemarker-gen\\src\\main\\java\\com\\freemarker\\hello\\FileSearch.java");
 
-        System.out.println(file.exists());*/
-
+        System.out.println(file.getName());
 
     }
 
