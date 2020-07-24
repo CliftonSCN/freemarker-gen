@@ -1,7 +1,7 @@
 <#list camelColumns as col>
-    "${lowerBean}.${col}":"${col}",
-    "${lowerBean}.${col}.notEmpty":"${col} can not be empty",
-    "${lowerBean}.${col}.length":"${col} cannot exceed 32 bits",
+    "${lowerBean}.${col.camelName}":"${col.camelName}",
+    "${lowerBean}.${col.camelName}.notEmpty":"${col.camelName} can not be empty",
+    "${lowerBean}.${col.camelName}.length":"${col.camelName} cannot exceed 32 bits",
 </#list>
     "common.${lowerBean}":"${bean}",
     "common.${lowerBean}M":"${bean} Manage",

@@ -41,7 +41,24 @@ handleAjaxError(errResponse);
 return $q.reject(errResponse);
 }
 );
-}
+},
+
+<#list camelColumns as col>
+    <#if (col.foreignKey)??>
+        sel${col.foreignTable}: function(){
+        return $http['get'](apiUrl +"/${col.foreignTable}")
+        .then(
+        function(response){
+        return response.data;
+        },
+        function(errResponse){
+        handleAjaxError(errResponse);
+        return $q.reject(errResponse);
+        }
+        );
+        },
+    </#if>
+</#list>
 
 };
 

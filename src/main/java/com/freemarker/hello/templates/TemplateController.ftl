@@ -1,4 +1,4 @@
-package
+package ${package};
 
 import com.github.pagehelper.PageHelper;
 import com.zbensoft.dmc.api.common.*;
@@ -85,6 +85,13 @@ public ResponseRestEntity<Void> create${bean}(@Valid @RequestBody ${bean} bean,B
     if (beanSelect !=null) {
         return new ResponseRestEntity<Void>(HttpRestStatus.CONFLICT,localeMessageSourceService.getMessage("common.create.conflict.message"));
     }
+    <#list camelColumns as col>
+        <#if col.type == "TimeStamp">
+            bean.set${col.upperName}(DateUtil.dateToTimeStamp(bean.get${col.upperName}()));
+        </#if>
+    </#list>
+
+
     ${lowerBean}Service.insert(bean);
     //新增日志
     CommonLogImpl.insertLog(CommonLogImpl.OPERTYPE_INSERT, bean,CommonLogImpl.ALARM);
@@ -111,11 +118,18 @@ public ResponseRestEntity<${bean}> update${bean}(@PathVariable("id") String id,@
         }
         return new ResponseRestEntity<${bean}>(beanSelect,HttpRestStatusFactory.createStatus(list),HttpRestStatusFactory.createStatusMessage(list));
     }
+    <#list camelColumns as col>
+        <#if col.type == "TimeStamp">
+            beanSelect.set${col.upperName}(DateUtil.dateToTimeStamp(bean.get${col.upperName}()));
+        <#else>
+            beanSelect.set${col.upperName}(bean.get${col.upperName}());
+        </#if>
+    </#list>
 
-    ${lowerBean}Service.updateByPrimaryKeySelective(bean);
+    ${lowerBean}Service.updateByPrimaryKey(beanSelect);
     //修改日志
-    CommonLogImpl.insertLog(CommonLogImpl.OPERTYPE_UPDATE, bean,CommonLogImpl.ALARM);
-    return new ResponseRestEntity<${bean}>(bean, HttpRestStatus.OK,localeMessageSourceService.getMessage("common.update.ok.message"));
+    CommonLogImpl.insertLog(CommonLogImpl.OPERTYPE_UPDATE, beanSelect,CommonLogImpl.ALARM);
+    return new ResponseRestEntity<${bean}>(beanSelect, HttpRestStatus.OK,localeMessageSourceService.getMessage("common.update.ok.message"));
 }
 
 

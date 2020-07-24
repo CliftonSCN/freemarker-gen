@@ -5,6 +5,22 @@ var App = angular.module('${lowerBean}Module', [ 'datatables',
 configAppModule(App);
 App.controller('ServerSideCtrl', ServerSideCtrl);
 
+$(function() {
+<#list camelColumns as col>
+    <#if (col.type == "Date" || col.type == "TimeStamp")>
+    $("#${col.camelName}").datetimepicker({
+        language: "zh-CN",
+        autoclose: true,
+        clearBtn: true,//清除按钮
+        todayBtn: 'linked',
+        //        minView: 'month',
+        format: timeFormat()//日期格式，详见 http://bootstrap-datepicker.readthedocs.org/en/release/options.html#format
+    });
+    </#if>
+</#list>
+
+});
+
 
 function ServerSideCtrl(DTOptionsBuilder, DTColumnBuilder, $translate, $scope,
 $filter, $compile, ${bean}Service,localStorageService,topleftService) {
@@ -22,7 +38,8 @@ vm.dtOptions = DTOptionsBuilder.fromSource(getFromSource(apiUrl + '/${lowerBean}
 setDtOptionsServerSide(vm);
 vm.dtColumns = [
 <#list camelColumns as col>
-    DTColumnBuilder.newColumn('${col}').withTitle($translate('${lowerBean}.${col}')).notSortable(),
+    DTColumnBuilder.newColumn('${col.camelName}').withTitle($translate('${lowerBean}.${col.camelName}')).notSortable()
+    <#if col.type == "TimeStamp">.renderWith(timeStampRender)</#if><#if col.type == "Date">.renderWith(dateRender)</#if><#if col.inVisible == 1>.notVisible()</#if>,
 </#list>
 DTColumnBuilder.newColumn(null).withTitle($translate('Actions')).withOption('width', '10%').notSortable()
 .renderWith(actionsHtml) ];
@@ -31,6 +48,31 @@ vm.addInit = addInit;
 vm.edit = edit;
 vm.submit = submit;
 vm.deleteBean = deleteBean;
+
+//获取外键数据
+<#list camelColumns as col>
+    <#if (col.foreignKey)??>var ${col.foreignTable}Data = [];</#if>
+</#list>
+
+selAll();
+
+function selAll() {
+    <#list camelColumns as col>
+        <#if (col.foreignKey)??>
+            ${bean}Service.sel${col.foreignTable}()
+            .then(
+            function(a) {
+                vm.${col.foreignTable}Data = a.body;
+            },
+            function(errResponse){
+                console.error('Error while fetching ${col.foreignTable}Data');
+            }
+            );
+        </#if>
+    </#list>
+}
+
+
 //表头start
 tableHandle();
 //表头end
@@ -74,6 +116,45 @@ vm.readonlyID = true;
 vm.bean = bean;
 vm.statusCode="";
 vm.statusMessage="";
+}
+
+function timeStampRender(data, type, full, meta) {
+    if(data==null||data==''){
+        return '';
+    }else{
+        var naLan = navigator.language;
+        if (naLan == undefined || naLan == "") {
+            naLan = navigator.browserLanguage;
+        }
+        const timeStamp = parseInt(data);
+        let date = new Date(timeStamp);
+        if(naLan=='zh'){
+            return  moment(date).format("YYYY-MM-DD HH:mm:ss");
+        }else if(naLan.indexOf("zh") >= 0){
+            return  moment(date).format("YYYY-MM-DD HH:mm:ss");
+        }else{
+            return  moment(date).format("DD/MM/YYYY HH:mm:ss");
+        }
+
+    }
+}
+
+function dateRender(data) {
+    if(data==null||data==''){
+        return '';
+    }else{
+        var naLan = navigator.language;
+        if (naLan == undefined || naLan == "") {
+            naLan = navigator.browserLanguage;
+        }
+        if(naLan=='zh'){
+            return  moment(date).format("YYYY-MM-DD HH:mm:ss");
+        }else if(naLan.indexOf("zh") >= 0){
+            return  moment(date).format("YYYY-MM-DD HH:mm:ss");
+        }else{
+            return  moment(date).format("DD/MM/YYYY HH:mm:ss");
+        }
+    }
 }
 
 function statusRender(data, type, full, meta) {
@@ -162,6 +243,19 @@ dialogItself.close();
 }]
 });
 });
+
+function selectBank(){
+// $("#selectCouponFun").select2();
+//解决 select2在模态框使用，模糊输入框无效
+
+<#list camelColumns as col>
+    <#if col.foreign??>
+        $("#${col.camelName}").select2();
+    </#if>
+</#list>
+
+}
+
 //超长备注处理end
 //解决查询后保持列的显示start
 $('#table_id').on( 'init.dt', function ( e, settings, column, state ) {
