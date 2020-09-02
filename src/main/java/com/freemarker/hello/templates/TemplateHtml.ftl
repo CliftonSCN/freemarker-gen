@@ -180,28 +180,10 @@ margin-top: -25px;padding-top: 20px;text-align: center;font-size: 1.2em;" transl
                                 <div class="col-xs-12">
                                     <section class="content-header"></section>
                                     <section class="content">
-                                        <#--<input type="hidden" ng-model="ctrl.bean.${lowerPk}" />-->
-
                                         <#list camelColumns as col>
-                                            <#if col.foreignKey??>
+                                            <#if col.primaryKey == 1>
 
-                                                <div class="row">
-                                                    <div class="col-xs-12">
-                                                        <div class="form-group col-sm-12">
-                                                            <label
-                                                                   class="col-sm-4 control-label control-label-zb" translate="${lowerBean}.${col.camelName}"></label>
-                                                            <div class="col-sm-7">
-                                                                <select class="form-control"  id="${col.camelName}" name="${col.camelName}" ng-model="ctrl.bean.${col.camelName}" ng-click="ctrl.selectBank()" style="width:100%;">
-                                                                    <option value="" translate="common.choose"></option>
-                                                                    <option ng-repeat="x in ctrl.${col.foreignTable}Data" value="{{x.${col.foreignKey}}}" ng-bind="x.${col.foreignName}"></option>
-                                                                </select>
-                                                                <div ng-show=" addEditForm.${col.camelName}.$error.maxlength" style="color:red" translate="${lowerBean}.${col.camelName}.length">
-
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                                <input type="hidden" ng-model="ctrl.bean.${lowerPk}"/>
 
                                             <#else >
                                                 <#if (col.type == "Date" || col.type == "TimeStamp")>
@@ -220,32 +202,61 @@ margin-top: -25px;padding-top: 20px;text-align: center;font-size: 1.2em;" transl
                                                         </div>
                                                     </div>
                                                 <#else>
+                                                    <#if col.camelName == "remark">
                                                     <#--String-->
-                                                    <div class="row">
-                                                        <div class="col-xs-12">
-                                                            <div class="form-group col-sm-12">
-                                                                <label
-                                                                        class="col-sm-4 control-label control-label-zb"
-                                                                        translate="${lowerBean}.${col.camelName}"></label>
-                                                                <div class="col-sm-7">
-                                                                    <input type="text" class="form-control" id="${col.camelName}"
-                                                                           placeholder="{{'${lowerBean}.${col.camelName}' | translate }}"
-                                                                           ng-model="ctrl.bean.${col.camelName}" <#if (col.primaryKey == 1 || col.readOnly == 1)>ng-readonly="ctrl.readonlyID"</#if>
-                                                                           name="${col.camelName}" ng-maxlength="32" <#if col.type == "Number">ng-pattern="/^[0-9]*$/"</#if>
-                                                                           required>
-                                                                    <div ng-show="addEditForm.${col.camelName}.$error.required"
-                                                                         style="color:red" translate="${lowerBean}.${col.camelName}.notEmpty">
-                                                                    </div>
-                                                                    <div ng-show="addEditForm.${col.camelName}.$error.maxlength"
-                                                                         style="color:red" translate="${lowerBean}.${col.camelName}.length">
-                                                                    </div>
-                                                                    <div ng-show="addEditForm.${col.camelName}.$error.pattern"
-                                                                         style="color:red" translate="common.illegalChar">
+                                                        <div class="row">
+                                                            <div class="col-xs-12">
+                                                                <div class="form-group col-sm-12">
+                                                                    <label
+                                                                            class="col-sm-4 control-label control-label-zb"
+                                                                            translate="${lowerBean}.${col.camelName}"></label>
+                                                                    <div class="col-sm-7">
+                                                                        <textarea type="text" class="form-control" id="${col.camelName}"
+                                                                                  name="${col.camelName}" ng-pattern="/^(?!.*[~!@$#%^&*<>)/(])/"
+                                                                                  placeholder="{{'${lowerBean}.${col.camelName}'   | translate }}"
+                                                                                  ng-model="ctrl.bean.${col.camelName}"
+                                                                                  ng-maxlength="1000"></textarea>
+                                                                        <div ng-show="addEditForm.${col.camelName}.$error.required"
+                                                                             style="color:red" translate="${lowerBean}.${col.camelName}.notEmpty">
+                                                                        </div>
+                                                                        <div ng-show="addEditForm.${col.camelName}.$error.maxlength"
+                                                                             style="color:red" translate="${lowerBean}.${col.camelName}.length">
+                                                                        </div>
+                                                                        <div ng-show="addEditForm.${col.camelName}.$error.pattern"
+                                                                             style="color:red" translate="common.illegalChar">
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    </div>
+                                                    <#else>
+                                                        <#--String-->
+                                                        <div class="row">
+                                                            <div class="col-xs-12">
+                                                                <div class="form-group col-sm-12">
+                                                                    <label
+                                                                            class="col-sm-4 control-label control-label-zb"
+                                                                            translate="${lowerBean}.${col.camelName}"></label>
+                                                                    <div class="col-sm-7">
+                                                                        <input type="text" class="form-control" id="${col.camelName}"
+                                                                               placeholder="{{'${lowerBean}.${col.camelName}' | translate }}"
+                                                                               ng-model="ctrl.bean.${col.camelName}" <#if (col.primaryKey == 1 || col.readOnly == 1)>ng-readonly="ctrl.readonlyID"</#if>
+                                                                               name="${col.camelName}" ng-maxlength="32" <#if col.type == "Number">ng-pattern="/^[0-9]*$/"</#if>
+                                                                               required>
+                                                                        <div ng-show="addEditForm.${col.camelName}.$error.required"
+                                                                             style="color:red" translate="${lowerBean}.${col.camelName}.notEmpty">
+                                                                        </div>
+                                                                        <div ng-show="addEditForm.${col.camelName}.$error.maxlength"
+                                                                             style="color:red" translate="${lowerBean}.${col.camelName}.length">
+                                                                        </div>
+                                                                        <div ng-show="addEditForm.${col.camelName}.$error.pattern"
+                                                                             style="color:red" translate="common.illegalChar">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </#if>
                                                 </#if>
                                             </#if>
                                         </#list>

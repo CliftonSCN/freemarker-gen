@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+	<properties resource="config.properties"/>
+	<classPathEntry
+		location="C:/Users/Administrator/.m2/repository/mysql/mysql-connector-java/5.1.26/mysql-connector-java-5.1.26.jar" />
+	<context id="context1">
+		<jdbcConnection connectionURL="jdbc:mysql://127.0.0.1:3306/dmc"
+			driverClass="com.mysql.jdbc.Driver" password="123qwe" userId="root" />
+		<javaModelGenerator targetPackage="com.zbensoft.dmc.db.domain"
+			targetProject="F:\WorkSpace\DMC\dmc-db\src\main\java" />
+		<sqlMapGenerator targetPackage="mapper"
+			targetProject="F:\WorkSpace\DMC\dmc-db\src\main\resources" />
+		<javaClientGenerator targetPackage="com.zbensoft.dmc.db.mapper"
+			targetProject="F:\WorkSpace\DMC\dmc-db\src\main\java" type="XMLMAPPER" />
+
+
+		<table schema="dmc" tableName="${tableName}"
+			   enableCountByExample="false" enableUpdateByExample="false"
+			   enableDeleteByExample="false" enableSelectByExample="false"
+			   selectByExampleQueryId="false">
+		</table>
+
+	</context>
+</generatorConfiguration>

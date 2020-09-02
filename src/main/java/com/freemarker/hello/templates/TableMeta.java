@@ -128,9 +128,36 @@ public class TableMeta {
      * @mbggenerated Wed Jul 22 16:25:57 CST 2020
      */
     private String foreignKey;
+    private String upperForeignKey;
     private String foreignName;
 
     private String foreignTable;
+    private String camelForeignTable;
+    private String upperForeignTable;
+
+    public String getUpperForeignKey() {
+        return upperForeignKey;
+    }
+
+    public void setUpperForeignKey(String upperForeignKey) {
+        this.upperForeignKey = upperForeignKey;
+    }
+
+    public String getUpperForeignTable() {
+        return upperForeignTable;
+    }
+
+    public void setUpperForeignTable(String upperForeignTable) {
+        this.upperForeignTable = upperForeignTable;
+    }
+
+    public String getCamelForeignTable() {
+        return camelForeignTable;
+    }
+
+    public void setCamelForeignTable(String camelForeignTable) {
+        this.camelForeignTable = camelForeignTable;
+    }
 
     public String getForeignName() {
         return foreignName;

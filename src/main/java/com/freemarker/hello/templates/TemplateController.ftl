@@ -1,10 +1,11 @@
-package ${package}.control;
+package ${package}.api.control;
 
 import com.github.pagehelper.PageHelper;
 import com.zbensoft.dmc.api.common.*;
 import com.zbensoft.dmc.api.service.api.${bean}Service;
 import com.zbensoft.dmc.db.domain.${bean};
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -13,11 +14,20 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
+import com.zbensoft.dmc.common.util.DateUtil;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
+<#list camelColumns as col>
+    <#if col.foreignKey??>
+        import com.zbensoft.dmc.api.service.api.${col.upperForeignTable}Service;
+        import com.zbensoft.dmc.db.domain.${col.upperForeignTable};
+    </#if>
+</#list>
 
 @RequestMapping(value = "/${lowerBean}")
 @RestController
@@ -25,6 +35,13 @@ public class ${bean}Controller {
 
 @Autowired
 ${bean}Service ${lowerBean}Service;
+
+<#list camelColumns as col>
+<#if col.foreignKey??>
+    @Autowired
+    ${col.upperForeignTable}Service ${col.camelForeignTable}Service;
+</#if>
+</#list>
 
 @Resource
 private LocaleMessageSourceService localeMessageSourceService;
@@ -58,6 +75,20 @@ public ResponseRestEntity<List<${bean}>> selectPage(@RequestParam(required = fal
     if (list == null || list.isEmpty()) {
         return new ResponseRestEntity<List<${bean}>>(new ArrayList<${bean}>(),HttpRestStatus.NOT_FOUND);
     }
+
+    <#if hasForeign??>
+        for(${bean} item:list){
+        <#list camelColumns as col>
+            <#if col.foreignKey??>
+                ${col.upperForeignTable} ${col.camelForeignTable} = ${col.camelForeignTable}Service.selectByPrimaryKey(item.get${col.upperName}());
+                if (${col.camelForeignTable} != null) {
+                    item.set${col.upperForeignTable}Name(${col.camelForeignTable}.getName());
+                }
+            </#if>
+        </#list>
+        }
+    </#if>
+
     return new ResponseRestEntity<List<${bean}>>(list, HttpRestStatus.OK, count, count);
 }
 
@@ -87,9 +118,13 @@ public ResponseRestEntity<Void> create${bean}(@Valid @RequestBody ${bean} bean,B
     }
     <#list camelColumns as col>
         <#if col.type == "TimeStamp">
-            bean.set${col.upperName}(DateUtil.dateToTimeStamp(bean.get${col.upperName}()));
+            bean.set${col.upperName}(com.zbensoft.dmc.api.common.DateUtil.dateToTimeStamp(bean.get${col.upperName}()));
         </#if>
     </#list>
+
+    <#if pk??>
+        bean.set${pk}("${tableNameAbbr}"+ com.zbensoft.dmc.common.util.DateUtil.convertDateToString(new Date(), DateUtil.DATE_FORMAT_THIRTEEN));
+    </#if>
 
 
     ${lowerBean}Service.insert(bean);
@@ -114,13 +149,13 @@ public ResponseRestEntity<${bean}> update${bean}(@PathVariable("id") String id,@
     if (result.hasErrors()) {
         List<ObjectError> list = result.getAllErrors();
         for (ObjectError error : list) {
-            //System.out.println(error.getCode() + "---" + error.getArguments() + "---" + error.getDefaultMessage());
+            System.out.println(error.getCode() + "---" + error.getArguments() + "---" + error.getDefaultMessage());
         }
         return new ResponseRestEntity<${bean}>(beanSelect,HttpRestStatusFactory.createStatus(list),HttpRestStatusFactory.createStatusMessage(list));
     }
     <#list camelColumns as col>
         <#if col.type == "TimeStamp">
-            beanSelect.set${col.upperName}(DateUtil.dateToTimeStamp(bean.get${col.upperName}()));
+            beanSelect.set${col.upperName}(com.zbensoft.dmc.api.common.DateUtil.dateToTimeStamp(bean.get${col.upperName}()));
         <#else>
             beanSelect.set${col.upperName}(bean.get${col.upperName}());
         </#if>

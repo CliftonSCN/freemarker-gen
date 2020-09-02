@@ -1,6 +1,7 @@
 package com.freemarker.hello.enums;
 
 /**
+ * 字段显示类型
  * @author Clifton
  * @create 2020/7/23 - 9:17
  */

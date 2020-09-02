@@ -2,19 +2,18 @@ package com.freemarker.hello;
 
 import com.freemarker.hello.enums.FileInfo;
 import com.freemarker.hello.enums.ShowType;
+import com.freemarker.hello.mybatis.MybatisGenerator;
 import com.freemarker.hello.templates.TableMeta;
 import com.sun.xml.internal.bind.v2.TODO;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import org.apache.commons.lang3.ClassPathUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,42 +23,40 @@ import java.util.regex.Pattern;
  */
 public class FreeMarkerDemo {
 
+    //表名
+    private static String TABLE_NAME;
+
+    //包名
+    public static final String PACKAGE = "com.zbensoft.dmc";
+
+    //数据库连接信息
     private static final String URL = "jdbc:mysql://127.0.0.1:3306/dmc";
     private static final String USER = "root";
     private static final String PASSWORD = "123qwe";
 
-    private static final String PROJECT_PATH = "F:\\WorkSpace\\DMC";
-    private static final String BOSS_PATH = "F:\\WorkSpace\\DMC\\dmc-boss";
-    private static final String API_PATH = "F:\\WorkSpace\\DMC\\dmc-api";
-    private static final String DB_PATH = "F:\\WorkSpace\\DMC\\dmc-db";
-    private static final String PACKAGE = "com.zbensoft.dmc.api";
-    private static final String CONTROLLER_PATH = "src\\main\\java\\com\\zbensoft\\dmc\\api\\control";
-    private static final String SERVICE_PATH = "src\\main\\java\\com\\zbensoft\\dmc\\api\\service\\api";
-    private static final String SERVICE_IMPL_PATH = "src\\main\\java\\com\\zbensoft\\dmc\\api\\service\\impl";
-    private static final String STATIC_PATH = "src\\main\\resources\\static";
-    private static final String DB_MAPPER_PATH = "src\\main\\java\\com\\zbensoft\\dmc\\db\\mapper";
-    private static final String DB_MAPPER_XML_PATH = "src\\main\\resources\\mapper";
-    private static final String TEMP_FILE_PATH = "src\\main\\java\\com\\freemarker\\hello\\temp";
-
-
-    private static final String ABSOLUTE_I18N_PATH = BOSS_PATH + "\\" + STATIC_PATH + "\\i18n";
-    private static final String ABSOLUTE_API_CONTROLLER_PATH = API_PATH + "\\" + CONTROLLER_PATH;
-    private static final String ABSOLUTE_API_SERVICE_PATH = API_PATH + "\\" + SERVICE_PATH;
-    private static final String ABSOLUTE_API_SERVICE_IMPL_PATH = API_PATH + "\\" + SERVICE_IMPL_PATH;
-    private static final String ABSOLUTE_STATIC_CONTROLLER_PATH = BOSS_PATH + "\\" + STATIC_PATH + "\\js\\controller";
-    private static final String ABSOLUTE_STATIC_SERVICE_PATH = BOSS_PATH + "\\" + STATIC_PATH + "\\js\\service";
-    private static final String ABSOLUTE_STATIC_HTML_PATH = BOSS_PATH + "\\" + STATIC_PATH;
-    private static final String ABSOLUTE_DB_MAPPER_PATH = DB_PATH + "\\" + DB_MAPPER_PATH;
-    private static final String ABSOLUTE_DB_MAPPER_XML_PATH = DB_PATH + "\\" + DB_MAPPER_XML_PATH;
-
+    //测试路径
+    public static final String TEMP_FILE_PATH = "src\\main\\java\\com\\freemarker\\hello\\temp";
     private static final String TEMPLATE_PATH = "src\\main\\java\\com\\freemarker\\hello\\templates";
     private static final String CLASS_PATH = "src\\main\\java\\com\\freemarker\\hello";
     private static final String I18N_FILE = "src\\main\\java\\com\\freemarker\\hello\\zh.json";
-    private static final String TABLE_NAME = "tone_config";
 
     private static Map<String, Object> dataMap = new HashMap<String, Object>();
 
     public static void main(String[] args) {
+
+        MybatisGenerator.generate();
+
+        Properties properties = new Properties();
+        try {
+            properties.load(FreeMarkerDemo.class.getResourceAsStream("/config.properties"));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        TABLE_NAME = (String) properties.get("tableName");
+
+
         // step1 创建freeMarker配置实例
         Configuration configuration = new Configuration();
         try {
@@ -74,15 +71,20 @@ public class FreeMarkerDemo {
             List<TableMeta> camelList = getCamelColumns();
             dataMap.put("camelColumns", camelList);
 
-//            createFile(configuration, dataMap, "TemplateController.ftl", FileInfo.JAVA_CONTROLLER, true);
-//            createFile(configuration, dataMap, "TemplateService.ftl", FileInfo.JAVA_SERVICE, true);
-//            createFile(configuration, dataMap, "TemplateServiceImpl.ftl", FileInfo.JAVA_SERVICE_IMPL, true);
-//            createFile(configuration, dataMap, "TemplateControllerJs.ftl", FileInfo.JS_CONTROLLER, false);
-//            createFile(configuration, dataMap, "TemplateHtml.ftl", FileInfo.HTML, false);
-//            createFile(configuration, dataMap, "TemplateServiceJs.ftl", FileInfo.JS_SERVICE, false);
-            createFile(configuration, dataMap, "TemplateMapper.ftl", FileInfo.DB_MAPPER, true);
-            createFile(configuration, dataMap, "TemplateMapperXml.ftl", FileInfo.DB_MAPPER_XML, true);
-//            createFile(configuration, dataMap, "zhTemplate.ftl", FileInfo.I18N, false);
+
+            createFile(configuration, "TemplateController.ftl", FileInfo.JAVA_CONTROLLER);
+            createFile(configuration, "TemplateService.ftl", FileInfo.JAVA_SERVICE);
+            createFile(configuration, "TemplateServiceImpl.ftl", FileInfo.JAVA_SERVICE_IMPL);
+
+            createFile(configuration, "TemplateControllerJs.ftl", FileInfo.JS_CONTROLLER);
+            createFile(configuration, "TemplateHtml.ftl", FileInfo.HTML);
+            createFile(configuration, "TemplateServiceJs.ftl", FileInfo.JS_SERVICE);
+
+            createFile(configuration, "TemplateMapper.ftl", FileInfo.DB_MAPPER);
+            createFile(configuration, "TemplateBean.ftl", FileInfo.DB_BEAN);
+            createFile(configuration, "TemplateMapperXml.ftl", FileInfo.DB_MAPPER_XML);
+
+            createFile(configuration, "zhTemplate.ftl", FileInfo.I18N);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -93,7 +95,14 @@ public class FreeMarkerDemo {
         String[] split = TABLE_NAME.split("_");
         String camelStr = lineToHump(TABLE_NAME);
         String upperCamelStr = upperFirstChar(camelStr);
+        StringBuilder tableNameAbbr = new StringBuilder();
+        for (String s : split) {
+            if (StringUtils.isNotEmpty(s)) {
+                tableNameAbbr.append(s.toUpperCase().charAt(0));
+            }
+        }
         dataMap.put("tableName", TABLE_NAME);
+        dataMap.put("tableNameAbbr", tableNameAbbr.toString());
         dataMap.put("bean", upperCamelStr);
         dataMap.put("lowerBean", camelStr);
         dataMap.put("authorize", TABLE_NAME.toUpperCase());
@@ -102,12 +111,10 @@ public class FreeMarkerDemo {
 
     /**
      * @param configuration
-     * @param dataMap
      * @param templateName  模板文件名
      * @param fileInfo    生成文件后缀名
-     * @param upper         生成文件首字母是否大写
      */
-    public static void createFile(Configuration configuration, Map<String, Object> dataMap, String templateName, FileInfo fileInfo, boolean upper) {
+    public static void createFile(Configuration configuration, String templateName, FileInfo fileInfo) {
         Writer out = null;
         File docFile = null;
         try {
@@ -115,7 +122,7 @@ public class FreeMarkerDemo {
             Template templateController = configuration.getTemplate(templateName);
             StringBuilder fileName = new StringBuilder();
             //文件名定义
-            if (upper) {
+            if (fileInfo.getFirstCharUpper()) {
                 fileName.append(dataMap.get("bean")).append(fileInfo.getSuffix());
             } else {
                 fileName.append(dataMap.get("lowerBean")).append(fileInfo.getSuffix());
@@ -126,30 +133,31 @@ public class FreeMarkerDemo {
 
             switch (fileInfo) {
                 case JAVA_CONTROLLER:
-                    path.append(ABSOLUTE_API_CONTROLLER_PATH);
+                    path.append(FilePath.ABSOLUTE_API_CONTROLLER_PATH);
                     break;
                 case JAVA_SERVICE:
-                    path.append(ABSOLUTE_API_SERVICE_PATH);
+                    path.append(FilePath.ABSOLUTE_API_SERVICE_PATH);
                     break;
                 case JAVA_SERVICE_IMPL:
-                    path.append(ABSOLUTE_API_SERVICE_IMPL_PATH);
+                    path.append(FilePath.ABSOLUTE_API_SERVICE_IMPL_PATH);
                     break;
                 case JS_CONTROLLER:
-                    path.append(ABSOLUTE_STATIC_CONTROLLER_PATH);
+                    path.append(FilePath.ABSOLUTE_STATIC_CONTROLLER_PATH);
                     break;
                 case JS_SERVICE:
-                    path.append(ABSOLUTE_STATIC_SERVICE_PATH);
+                    path.append(FilePath.ABSOLUTE_STATIC_SERVICE_PATH);
                     break;
                 case HTML:
-                    path.append(ABSOLUTE_STATIC_HTML_PATH);
+                    path.append(FilePath.ABSOLUTE_STATIC_HTML_PATH);
                     break;
                 case DB_MAPPER:
+                    path.append(FilePath.ABSOLUTE_DB_MAPPER_PATH);
+                    break;
                 case DB_MAPPER_XML:
                 case I18N:
-                    path.append(TEMP_FILE_PATH);
-                    break;
                 default:
-                    System.out.println("找不到该文件对应的后缀名");
+                    path.append(TEMP_FILE_PATH);
+                    System.out.println("使用临时路径");
                     break;
             }
 
@@ -174,6 +182,21 @@ public class FreeMarkerDemo {
             out.close();
 
             //追加文件
+            //当指定特殊的追加文件
+            if (StringUtils.isNotEmpty(fileInfo.getToFile())) {
+                if (fileInfo.getToFileName() != null) {
+                    String[] toFileNameArray = fileInfo.getToFileName().split("/");
+                    for (String toFileName : toFileNameArray) {
+                        appendToFile(docFile.getAbsolutePath(), toFileName, fileInfo);
+                    }
+                }
+
+                if (fileInfo.getToFileName() == null) {
+                    appendToFile(docFile.getAbsolutePath(), docFile.getName(), fileInfo);
+                }
+            }
+            /*
+            遵循开闭原则，将被追加文件信息抽取
             switch (fileInfo) {
                 case DB_MAPPER:
                     appendToFile(docFile.getAbsolutePath(), ABSOLUTE_DB_MAPPER_PATH + "\\" + docFile.getName(), fileInfo);
@@ -188,7 +211,7 @@ public class FreeMarkerDemo {
                     break;
                 default:
                     break;
-            }
+            }*/
 
         } catch (IOException | TemplateException e) {
             e.printStackTrace();
@@ -207,19 +230,29 @@ public class FreeMarkerDemo {
     /**
      * 追加文件
      * @param fromFile 目标文件
-     * @param toFile    追加到哪个文件
-     * @param fileInfo    文件信息
+     * @param toFileName 被追加文件名
+     * @param fileInfo    被追加文件的信息
      */
-    public static void appendToFile(String fromFile, String toFile, FileInfo fileInfo) {
+    public static void appendToFile(String fromFile, String toFileName, FileInfo fileInfo) {
 
         //搜索次数
         int foundTimes = fileInfo.getTimes();
 
-        File tf = new File(toFile);
+        //读取生成的临时文件
+        File ff = new File(fromFile);
+        File tf = new File(fileInfo.getToFile()+"\\"+toFileName);
+
+        if (!ff.exists()){
+            System.out.println("追加文件时，读取的"+fromFile+"临时文件不存在");
+            return;
+        }
+        if (!tf.exists()){
+            System.out.println("追加文件时，追加的"+tf.getAbsolutePath()+"文件不存在");
+            return;
+        }
 
         RandomAccessFile toRandomAccessFile = null;
         RandomAccessFile fromRandomAccessFile = null;
-        File ff = null;
         try {
             //TODO 文件为空时的处理
 
@@ -277,9 +310,6 @@ public class FreeMarkerDemo {
             toRandomAccessFile.writeByte(10);
             toRandomAccessFile.writeByte(10);
 
-            //读取生成的临时文件
-            ff = new File(fromFile);
-
             fromRandomAccessFile = new RandomAccessFile(ff, "r");
 
             bytes = new byte[(int) fromRandomAccessFile.length()];
@@ -292,6 +322,8 @@ public class FreeMarkerDemo {
             //写入末尾内容
             toRandomAccessFile.write(bytesSuffix);
 
+            System.out.println(tf.getAbsolutePath()+"追加完成");
+
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -302,7 +334,7 @@ public class FreeMarkerDemo {
                 if (fromRandomAccessFile != null) {
                     fromRandomAccessFile.close();
                 }
-                if (ff != null) {
+                if (!ff.getName().contains("i18n")) {
                     if (ff.delete()) {
                         System.out.println("^^^^^^^^^^^^^^^^^^^^^^^^" + ff.getAbsolutePath() + "\\" + ff.getName() + " 文件已删除");
                     } else {
@@ -408,6 +440,7 @@ public class FreeMarkerDemo {
         //1.加载驱动程序
         Connection con = null;
         ArrayList<TableMeta> list = new ArrayList<TableMeta>();
+        ArrayList<String> foreignNames = null;
         try {
             Class.forName("com.mysql.jdbc.Driver");
             //2.获得数据库链接
@@ -423,12 +456,14 @@ public class FreeMarkerDemo {
             ResultSet primaryKeys = metaData.getPrimaryKeys(catalog, null, TABLE_NAME);
             String camelPk = null;
             String upperCamelPk = null;
+            String pk = null;
             if (primaryKeys.next()) {
-                String pk = primaryKeys.getString("COLUMN_NAME");
+                pk = primaryKeys.getString("COLUMN_NAME");
                 camelPk = lineToHump(pk);
                 upperCamelPk = upperFirstChar(camelPk);
             }
 
+            dataMap.put("p_k", pk);
             dataMap.put("pk", upperCamelPk);
             dataMap.put("lowerPk", camelPk);
             primaryKeys.close();
@@ -446,6 +481,9 @@ public class FreeMarkerDemo {
                 tableMeta.setCamelName(lineToHump(columnName));
                 tableMeta.setUpperName(upperFirstChar(tableMeta.getCamelName()));
                 tableMeta.setType(toSqlToJava(sqlType).getShowType());
+                if(tableMeta.getType().equals(ShowType.STRING.getShowType()) && columnName.endsWith("time")){
+                    tableMeta.setType(ShowType.TIMESTAMP.getShowType());
+                }
                 //修改时是否只读
                 tableMeta.setReadOnly(0);
                 //表格是否显示
@@ -460,11 +498,20 @@ public class FreeMarkerDemo {
                 }
 
                 //先按默认情况判断是否为外键
-                if (tableMeta.getPrimaryKey() != 1 && tableMeta.getCamelName().endsWith("Id")) {
+               /* if (tableMeta.getPrimaryKey() != 1 && tableMeta.getCamelName().endsWith("Id")) {
                     tableMeta.setForeignTable(columnName.substring(0, columnName.length() - 3));
+                    tableMeta.setCamelForeignTable(lineToHump(tableMeta.getForeignTable()));
+                    tableMeta.setUpperForeignTable(upperFirstChar(tableMeta.getCamelForeignTable()));
                     tableMeta.setForeignKey(tableMeta.getCamelName());
+                    tableMeta.setUpperForeignKey(upperFirstChar(tableMeta.getCamelName()));
                     tableMeta.setForeignName("name");
-                }
+                    tableMeta.setInVisible(1);
+                    dataMap.put("hasForeign", 1);
+                    if (foreignNames == null){
+                        foreignNames = new ArrayList<>();
+                    }
+                    foreignNames.add(tableMeta.getCamelForeignTable()+"Name");
+                }*/
 
                 list.add(tableMeta);
             }
@@ -475,6 +522,7 @@ public class FreeMarkerDemo {
                 dataMap.put("lowerPk", list.get(0).getCamelName());
             }
 
+            dataMap.put("foreignNames",foreignNames);
             columns.close();
             return list;
         } catch (ClassNotFoundException | SQLException e) {
@@ -537,9 +585,9 @@ public class FreeMarkerDemo {
             case "datetime":
             case "year":
             case "time":
-                return ShowType.DATE;
             case "timestamp":
-                return ShowType.TIMESTAMP;
+                return ShowType.DATE;
+//                return ShowType.TIMESTAMP;
             default:
                 System.out.println("-----------------》转化失败：未发现的类型" + sqlType + ", 使用String类型");
                 break;

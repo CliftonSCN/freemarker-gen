@@ -46,7 +46,7 @@ return $q.reject(errResponse);
 <#list camelColumns as col>
     <#if (col.foreignKey)??>
         sel${col.foreignTable}: function(){
-        return $http['get'](apiUrl +"/${col.foreignTable}")
+        return $http['get'](apiUrl +"/${col.camelForeignTable}")
         .then(
         function(response){
         return response.data;

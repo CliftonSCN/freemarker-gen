@@ -1,7 +1,6 @@
-package ${package}.service.api;
+package ${package}.api.service.api;
 
 import com.zbensoft.dmc.db.domain.${bean};
-
 import java.util.List;
 
 public interface ${bean}Service {
@@ -15,7 +14,7 @@ int insert(${bean} record);
 int insertSelective(${bean} record);
 
 
-Device selectByPrimaryKey(String id);
+${bean} selectByPrimaryKey(String id);
 
 
 int updateByPrimaryKeySelective(${bean} record);

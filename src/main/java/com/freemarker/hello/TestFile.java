@@ -1,6 +1,9 @@
 package com.freemarker.hello;
 
 import java.io.File;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Clifton
@@ -9,10 +12,15 @@ import java.io.File;
 public class TestFile {
 
     public static void main(String[] args) {
-        File file = new File("F:\\WorkSpace\\freemarker-gen\\src\\main\\java\\com\\freemarker\\hello\\FileSearch.java");
+        Map<String, String> map = null;
+        Map<String, String> tmpMap = new HashMap<>();
+        tmpMap.put("123","123");
+        ge(map, tmpMap);
+        System.out.println(map);
+    }
 
-        System.out.println(file.getName());
-
+    private static void ge(Map<String, String> map, Map<String, String> tmpMap) {
+        map = tmpMap;
     }
 
 }

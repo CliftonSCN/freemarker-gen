@@ -1,11 +1,10 @@
-package ${package}.service.impl;
+package ${package}.api.service.impl;
 
 import com.zbensoft.dmc.api.service.api.${bean}Service;
 import com.zbensoft.dmc.db.domain.${bean};
 import com.zbensoft.dmc.db.mapper.${bean}Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service

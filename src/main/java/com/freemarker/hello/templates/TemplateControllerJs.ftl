@@ -38,8 +38,14 @@ vm.dtOptions = DTOptionsBuilder.fromSource(getFromSource(apiUrl + '/${lowerBean}
 setDtOptionsServerSide(vm);
 vm.dtColumns = [
 <#list camelColumns as col>
-    DTColumnBuilder.newColumn('${col.camelName}').withTitle($translate('${lowerBean}.${col.camelName}')).notSortable()
-    <#if col.type == "TimeStamp">.renderWith(timeStampRender)</#if><#if col.type == "Date">.renderWith(dateRender)</#if><#if col.inVisible == 1>.notVisible()</#if>,
+    DTColumnBuilder.newColumn('${col.camelName}').withTitle($translate('${lowerBean}.${col.camelName}')).notSortable()<#if col.type == "TimeStamp">.renderWith(timeStampFormat)</#if><#if col.type == "Date">.renderWith(dateRender)</#if><#if col.camelName == "remark">.renderWith(remarkDetail)</#if><#if col.camelName == "status">.renderWith(statusRender)</#if><#if col.inVisible = 1>.notVisible()</#if>,
+    <#if col.primaryKey = 1>
+        <#if foreignNames??>
+            <#list foreignNames as foreignName>
+                DTColumnBuilder.newColumn('${foreignName}').withTitle($translate('${lowerBean}.${foreignName}')).notSortable(),
+            </#list>
+        </#if>
+    </#if>
 </#list>
 DTColumnBuilder.newColumn(null).withTitle($translate('Actions')).withOption('width', '10%').notSortable()
 .renderWith(actionsHtml) ];
@@ -51,7 +57,7 @@ vm.deleteBean = deleteBean;
 
 //获取外键数据
 <#list camelColumns as col>
-    <#if (col.foreignKey)??>var ${col.foreignTable}Data = [];</#if>
+    <#if (col.foreignKey)??>vm.${col.foreignTable}Data = [];</#if>
 </#list>
 
 selAll();
@@ -87,6 +93,30 @@ return '<span class="spanFun" style=" display: inline-block;width: 200px;white-s
 return '';
 }
 }
+$("#example").on("click", ".spanFun", function(){
+var remarkDetail = $(this).text();
+BootstrapDialog.show({
+title: $translate.instant('user.remark'),
+message: function(dialog) {
+var $message=$(
+'<span id="content_detail" style="word-break:normal; width:auto; display:block; white-space:pre-wrap;word-wrap:break-word ;overflow: hidden"'+
+'</span>'
+);
+return $message;
+},
+onshown: function(dialogRef){//打开完成
+$("#content_detail").text(remarkDetail);
+},
+buttons: [
+{
+label: $translate.instant('common.yes'),
+cssClass: 'btn-primary',
+action: function(dialogItself){
+dialogItself.close();
+}
+}]
+});
+});
 //超长备注处理end
 function actionsHtml(data, type, full, meta) {
 vm.beans[data.${lowerPk}] = data;
@@ -114,11 +144,16 @@ reloadData();
 vm.modelTitle = $translate.instant('${lowerBean}.${lowerBean}Edit');
 vm.readonlyID = true;
 vm.bean = bean;
+<#list camelColumns as col>
+    <#if (col.type = "TimeStamp")>
+        vm.bean.${col.camelName} = timeStampFormat(bean.${col.camelName});
+    </#if>
+</#list>
 vm.statusCode="";
 vm.statusMessage="";
 }
 
-function timeStampRender(data, type, full, meta) {
+function timeStampFormat(data, type, full, meta) {
     if(data==null||data==''){
         return '';
     }else{
@@ -218,31 +253,7 @@ dialogItself.close();
 });
 
 }
-//超长备注处理start
-$("#example").on("click", ".spanFun", function(){
-var remarkDetail = $(this).text();
-BootstrapDialog.show({
-title: $translate.instant('user.remark'),
-message: function(dialog) {
-var $message=$(
-'<span id="content_detail" style="word-break:normal; width:auto; display:block; white-space:pre-wrap;word-wrap:break-word ;overflow: hidden"'+
-'</span>'
-);
-return $message;
-},
-onshown: function(dialogRef){//打开完成
-$("#content_detail").text(remarkDetail);
-},
-buttons: [
-{
-label: $translate.instant('common.yes'),
-cssClass: 'btn-primary',
-action: function(dialogItself){
-dialogItself.close();
-}
-}]
-});
-});
+
 
 function selectBank(){
 // $("#selectCouponFun").select2();
@@ -256,9 +267,18 @@ function selectBank(){
 
 }
 
-//超长备注处理end
 //解决查询后保持列的显示start
 $('#table_id').on( 'init.dt', function ( e, settings, column, state ) {
+var flag = $(".dataTables_scrollBody").css("overflow");
+if(flag='visible'){
+}
+if(flag='auto'){
+$(".dataTables_scroll").attr("style","overflow:auto");
+$(".dataTables_scrollHead").css("overflow", "");
+$(".dataTables_scrollBody").css("overflow", "");
+$(".dataTables_scrollBody").attr("style","border:0px");
+$("#table_id").attr("style","border-bottom:1px solid black");
+}
 vm.columnStatusData = settings.aoColumns;
 } );
 //解决查询后保持列的显示end
