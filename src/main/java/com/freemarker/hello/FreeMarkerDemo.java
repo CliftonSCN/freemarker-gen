@@ -27,7 +27,7 @@ public class FreeMarkerDemo {
     private static String TABLE_NAME;
 
     //包名
-    public static final String PACKAGE = "com.zbensoft.dmc";
+    public static String PACKAGE;
 
     //数据库连接信息
     private static final String URL = "jdbc:mysql://127.0.0.1:3306/dmc";
@@ -55,6 +55,7 @@ public class FreeMarkerDemo {
         }
 
         TABLE_NAME = (String) properties.get("tableName");
+        PACKAGE = (String) properties.get("package");
 
 
         // step1 创建freeMarker配置实例
@@ -153,6 +154,8 @@ public class FreeMarkerDemo {
                 case DB_MAPPER:
                     path.append(FilePath.ABSOLUTE_DB_MAPPER_PATH);
                     break;
+                case DB_BEAN:
+                    path.append(FilePath.ABSOLUTE_DB_BEAN_PATH);
                 case DB_MAPPER_XML:
                 case I18N:
                 default:
@@ -498,7 +501,7 @@ public class FreeMarkerDemo {
                 }
 
                 //先按默认情况判断是否为外键
-               /* if (tableMeta.getPrimaryKey() != 1 && tableMeta.getCamelName().endsWith("Id")) {
+               if (tableMeta.getPrimaryKey() != 1 && tableMeta.getCamelName().endsWith("Id")) {
                     tableMeta.setForeignTable(columnName.substring(0, columnName.length() - 3));
                     tableMeta.setCamelForeignTable(lineToHump(tableMeta.getForeignTable()));
                     tableMeta.setUpperForeignTable(upperFirstChar(tableMeta.getCamelForeignTable()));
@@ -511,7 +514,7 @@ public class FreeMarkerDemo {
                         foreignNames = new ArrayList<>();
                     }
                     foreignNames.add(tableMeta.getCamelForeignTable()+"Name");
-                }*/
+                }
 
                 list.add(tableMeta);
             }

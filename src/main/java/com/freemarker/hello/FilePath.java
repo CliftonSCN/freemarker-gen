@@ -1,15 +1,30 @@
 package com.freemarker.hello;
 
+import java.io.IOException;
+import java.util.Properties;
+
 /**
  * @author Clifton
  * @create 2020/7/27 - 9:10
  */
 public class FilePath {
 
-    public static final String PROJECT_PATH = "F:\\WorkSpace\\DMC";
-    public static final String BOSS_PATH = "F:\\WorkSpace\\DMC\\dmc-boss";
-    public static final String API_PATH = "F:\\WorkSpace\\DMC\\dmc-api";
-    public static final String DB_PATH = "F:\\WorkSpace\\DMC\\dmc-db";
+    public static String PROJECT_PATH = "F:\\WorkSpace\\DMC";
+
+    static {
+        Properties properties = new Properties();
+        try {
+            properties.load(FreeMarkerDemo.class.getResourceAsStream("/config.properties"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        PROJECT_PATH = (String) properties.get("projectPath");
+    }
+
+    public static final String BOSS_PATH = PROJECT_PATH+"\\dmc-boss";
+    public static final String API_PATH = PROJECT_PATH+"\\dmc-api";
+    public static final String DB_PATH = PROJECT_PATH+"\\dmc-db";
     public static final String CONTROLLER_PATH = "src\\main\\java\\com\\zbensoft\\dmc\\api\\control";
     public static final String SERVICE_PATH = "src\\main\\java\\com\\zbensoft\\dmc\\api\\service\\api";
     public static final String SERVICE_IMPL_PATH = "src\\main\\java\\com\\zbensoft\\dmc\\api\\service\\impl";
