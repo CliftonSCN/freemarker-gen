@@ -25,18 +25,18 @@ public class FilePath {
     }
 
     public static final String BOSS_PATH = PROJECT_PATH+"\\"+PROJECT_NAME+"-boss";
-    public static final String API_PATH = PROJECT_PATH+"\\\"+PROJECT_NAME+\"-api";
-    public static final String DB_PATH = PROJECT_PATH+"\\\"+PROJECT_NAME+\"-db";
-    public static final String CONTROLLER_PATH = "src\\main\\java\\com\\zbensoft\\\"+PROJECT_NAME+\"\\api\\control";
-    public static final String SERVICE_PATH = "src\\main\\java\\com\\zbensoft\\\"+PROJECT_NAME+\"\\api\\service\\api";
-    public static final String SERVICE_IMPL_PATH = "src\\main\\java\\com\\zbensoft\\\"+PROJECT_NAME+\"\\api\\service\\impl";
+    public static final String API_PATH = PROJECT_PATH+"\\"+PROJECT_NAME+"-api";
+    public static final String DB_PATH = PROJECT_PATH+"\\"+PROJECT_NAME+"-db";
+    public static final String CONTROLLER_PATH = "src\\main\\java\\com\\zbensoft\\"+PROJECT_NAME+"\\api\\control";
+    public static final String SERVICE_PATH = "src\\main\\java\\com\\zbensoft\\"+PROJECT_NAME+"\\api\\service\\api";
+    public static final String SERVICE_IMPL_PATH = "src\\main\\java\\com\\zbensoft\\"+PROJECT_NAME+"\\api\\service\\impl";
     public static final String HTML_PATH = "src\\main\\resources\\static";
     public static final String JS_CONTROLLER_PATH = "src\\main\\resources\\static\\js\\controller";
     public static final String JS_SERVICE_PATH = "src\\main\\resources\\static\\js\\service";
     public static final String I18N_PATH = "src\\main\\resources\\static\\il8n";
-    public static final String DB_MAPPER_PATH = "src\\main\\java\\com\\zbensoft\\\"+PROJECT_NAME+\"\\db\\mapper";
+    public static final String DB_MAPPER_PATH = "src\\main\\java\\com\\zbensoft\\"+PROJECT_NAME+"\\db\\mapper";
     public static final String DB_MAPPER_XML_PATH = "src\\main\\resources\\mapper";
-    public static final String DB_BEAN_PATH = "src\\main\\java\\com\\zbensoft\\\"+PROJECT_NAME+\"\\db\\domain";
+    public static final String DB_BEAN_PATH = "src\\main\\java\\com\\zbensoft\\"+PROJECT_NAME+"\\db\\domain";
 
     public static final String ABSOLUTE_I18N_PATH = FilePath.BOSS_PATH + "\\" + FilePath.I18N_PATH;
     public static final String ABSOLUTE_API_CONTROLLER_PATH = FilePath.API_PATH + "\\" + FilePath.CONTROLLER_PATH;

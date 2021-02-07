@@ -163,7 +163,6 @@ public class FreeMarkerDemo {
                     path.append(FilePath.ABSOLUTE_DB_MAPPER_PATH);
                     break;
                 case DB_BEAN:
-                    path.append(FilePath.ABSOLUTE_DB_BEAN_PATH);
                 case DB_MAPPER_XML:
                 case I18N:
                 default:
@@ -181,6 +180,7 @@ public class FreeMarkerDemo {
                 //如果目标文件所在的目录不存在，则创建父目录
                 if (!docFile.getParentFile().mkdirs()) {
                     System.out.println("创建目标文件所在目录失败！");
+                    return;
                 }
             }
 
