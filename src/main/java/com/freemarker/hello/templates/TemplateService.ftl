@@ -1,6 +1,6 @@
 package ${package}.api.service.api;
 
-import com.zbensoft.dmc.db.domain.${bean};
+import com.zbensoft.${projectName}.db.domain.${bean};
 import java.util.List;
 
 public interface ${bean}Service {

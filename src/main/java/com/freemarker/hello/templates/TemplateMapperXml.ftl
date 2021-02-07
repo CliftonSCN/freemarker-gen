@@ -1,4 +1,4 @@
-<select id="selectPage" parameterType="com.zbensoft.dmc.db.domain.${bean}" resultMap="BaseResultMap">
+<select id="selectPage" parameterType="com.zbensoft.${projectName}.db.domain.${bean}" resultMap="BaseResultMap">
     <!--
       WARNING - @mbg.generated
       当保留注释时，再次运行mybatis generator会删除这个标签
@@ -13,7 +13,7 @@
     </#if>
 </select>
 
-<select id="count" parameterType="com.zbensoft.dmc.db.domain.${bean}" resultType="int">
+<select id="count" parameterType="com.zbensoft.${projectName}.db.domain.${bean}" resultType="int">
     <!--
       WARNING - @mbg.generated
       当保留注释时，再次运行mybatis generator会删除这个标签

@@ -5,17 +5,17 @@
 	<classPathEntry
 		location="C:/Users/Administrator/.m2/repository/mysql/mysql-connector-java/5.1.31/mysql-connector-java-5.1.31.jar" />
 	<context id="context1">
-		<jdbcConnection connectionURL="jdbc:mysql://127.0.0.1:3306/dmc"
+		<jdbcConnection connectionURL="jdbc:mysql://127.0.0.1:3306/${projectName}"
 			driverClass="com.mysql.jdbc.Driver" password="123qwe" userId="root" />
-		<javaModelGenerator targetPackage="com.zbensoft.dmc.db.domain"
-			targetProject="${projectPath}\dmc-db\src\main\java" />
+		<javaModelGenerator targetPackage="com.zbensoft.${projectName}.db.domain"
+			targetProject="${projectPath}\${projectName}-db\src\main\java" />
 		<sqlMapGenerator targetPackage="mapper"
-			targetProject="${projectPath}\dmc-db\src\main\resources" />
-		<javaClientGenerator targetPackage="com.zbensoft.dmc.db.mapper"
-			targetProject="${projectPath}\dmc-db\src\main\java" type="XMLMAPPER" />
+			targetProject="${projectPath}\${projectName}-db\src\main\resources" />
+		<javaClientGenerator targetPackage="com.zbensoft.${projectName}.db.mapper"
+			targetProject="${projectPath}\${projectName}-db\src\main\java" type="XMLMAPPER" />
 
 
-		<table schema="dmc" tableName="${tableName}"
+		<table schema="${projectName}" tableName="${tableName}"
 			   enableCountByExample="false" enableUpdateByExample="false"
 			   enableDeleteByExample="false" enableSelectByExample="false"
 			   selectByExampleQueryId="false">

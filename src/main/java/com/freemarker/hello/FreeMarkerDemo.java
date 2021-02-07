@@ -29,10 +29,13 @@ public class FreeMarkerDemo {
     //包名
     public static String PACKAGE;
 
+    //包名
+    public static String PROJECT_NAME;
+
     //数据库连接信息
-    private static final String URL = "jdbc:mysql://127.0.0.1:3306/dmc";
-    private static final String USER = "root";
-    private static final String PASSWORD = "123qwe";
+    private static String URL;
+    private static String USER;
+    private static String PASSWORD;
 
     //测试路径
     public static final String TEMP_FILE_PATH = "src\\main\\java\\com\\freemarker\\hello\\temp";
@@ -56,6 +59,10 @@ public class FreeMarkerDemo {
 
         TABLE_NAME = (String) properties.get("tableName");
         PACKAGE = (String) properties.get("package");
+        PROJECT_NAME = (String) properties.get("projectName");
+        URL = (String) properties.get("url");
+        USER = (String) properties.get("user");
+        PASSWORD = (String) properties.get("password");
 
 
         // step1 创建freeMarker配置实例
@@ -108,6 +115,7 @@ public class FreeMarkerDemo {
         dataMap.put("lowerBean", camelStr);
         dataMap.put("authorize", TABLE_NAME.toUpperCase());
         dataMap.put("package", PACKAGE);
+        dataMap.put("projectName", PROJECT_NAME);
     }
 
     /**

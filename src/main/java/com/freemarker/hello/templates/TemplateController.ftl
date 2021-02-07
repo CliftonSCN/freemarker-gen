@@ -1,9 +1,9 @@
 package ${package}.api.control;
 
 import com.github.pagehelper.PageHelper;
-import com.zbensoft.dmc.api.common.*;
-import com.zbensoft.dmc.api.service.api.${bean}Service;
-import com.zbensoft.dmc.db.domain.${bean};
+import com.zbensoft.${projectName}.api.common.*;
+import com.zbensoft.${projectName}.api.service.api.${bean}Service;
+import com.zbensoft.${projectName}.db.domain.${bean};
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
-import com.zbensoft.dmc.common.util.DateUtil;
+import com.zbensoft.${projectName}.common.util.DateUtil;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -24,8 +24,8 @@ import java.util.List;
 
 <#list camelColumns as col>
     <#if col.foreignKey??>
-        import com.zbensoft.dmc.api.service.api.${col.upperForeignTable}Service;
-        import com.zbensoft.dmc.db.domain.${col.upperForeignTable};
+        import com.zbensoft.${projectName}.api.service.api.${col.upperForeignTable}Service;
+        import com.zbensoft.${projectName}.db.domain.${col.upperForeignTable};
     </#if>
 </#list>
 
@@ -118,12 +118,12 @@ public ResponseRestEntity<Void> create${bean}(@Valid @RequestBody ${bean} bean,B
     }
     <#list camelColumns as col>
         <#if col.type == "TimeStamp">
-            bean.set${col.upperName}(com.zbensoft.dmc.api.common.DateUtil.dateToTimeStamp(bean.get${col.upperName}()));
+            bean.set${col.upperName}(com.zbensoft.${projectName}.api.common.DateUtil.dateToTimeStamp(bean.get${col.upperName}()));
         </#if>
     </#list>
 
     <#if pk??>
-        bean.set${pk}("${tableNameAbbr}"+ com.zbensoft.dmc.common.util.DateUtil.convertDateToString(new Date(), DateUtil.DATE_FORMAT_THIRTEEN));
+        bean.set${pk}("${tableNameAbbr}"+ com.zbensoft.${projectName}.common.util.DateUtil.convertDateToString(new Date(), DateUtil.DATE_FORMAT_THIRTEEN));
     </#if>
 
 
@@ -155,7 +155,7 @@ public ResponseRestEntity<${bean}> update${bean}(@PathVariable("id") String id,@
     }
     <#list camelColumns as col>
         <#if col.type == "TimeStamp">
-            beanSelect.set${col.upperName}(com.zbensoft.dmc.api.common.DateUtil.dateToTimeStamp(bean.get${col.upperName}()));
+            beanSelect.set${col.upperName}(com.zbensoft.${projectName}.api.common.DateUtil.dateToTimeStamp(bean.get${col.upperName}()));
         <#else>
             beanSelect.set${col.upperName}(bean.get${col.upperName}());
         </#if>

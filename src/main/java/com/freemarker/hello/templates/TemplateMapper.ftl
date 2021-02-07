@@ -1,6 +1,6 @@
 package ${package}.db.mapper;
 
-import com.zbensoft.dmc.db.domain.${bean};
+import com.zbensoft.${projectName}.db.domain.${bean};
 
 import java.util.List;
 
