@@ -1,7 +1,7 @@
 'use strict';
-var App = angular.module('${lowerBean}Module', [ 'datatables',
+var App = angular.module('${lowerBean}Module', ['ui.router', 'ui.router.state.events', 'daterangepicker', 'datatables',
 'datatables.columnfilter', 'datatables.fixedcolumns',
-'datatables.buttons', 'pascalprecht.translate', 'ngSanitize','LocalStorageModule', 'ui.tree' ]);
+'datatables.buttons', 'pascalprecht.translate', 'ngSanitize', 'LocalStorageModule', 'ui.tree']);
 configAppModule(App);
 App.controller('ServerSideCtrl', ServerSideCtrl);
 
@@ -25,6 +25,15 @@ $(function() {
 function ServerSideCtrl(DTOptionsBuilder, DTColumnBuilder, $translate, $scope,
 $filter, $compile, ${bean}Service,localStorageService,topleftService) {
 var vm = this;
+//批量start
+vm.selected = {};
+vm.selectAll = false;
+vm.toggleAll = toggleAll;
+vm.toggleOne = toggleOne;
+var titleHtml = '<input type="checkbox" id="checkbox_all_id" style="margin-left:-7px" ng-model="ctrl.selectAll" ng-click="ctrl.toggleAll(ctrl.selectAll, ctrl.selected)">';
+//批量删除按钮
+var titleHtmlDel = 'Actions  ' + '<button class="btn btn-primary btn-sm table-tool-left" translate="Activation" ng-click="ctrl.test()"></button>';
+//批量end
 vm.modelTitle = "";
 vm.readonlyID = false;
 vm.beanSer = {};
@@ -37,6 +46,11 @@ vm.dtOptions = DTOptionsBuilder.fromSource(getFromSource(apiUrl + '/${lowerBean}
 
 setDtOptionsServerSide(vm);
 vm.dtColumns = [
+    DTColumnBuilder.newColumn('${lowerPk}').withTitle("<input type='checkbox' id='checkbox_all_id'>").notSortable()
+    .renderWith(function (data, type, full, meta) {
+    vm.selected[data] = false;
+    return '<input type="checkbox" ng-model="ctrl.selected[\'' + data + '\']" ng-click="ctrl.toggleOne(ctrl.selected)">';
+    }),
 <#list camelColumns as col>
     DTColumnBuilder.newColumn('${col.camelName}').withTitle($translate('${lowerBean}.${col.camelName}')).notSortable()<#if col.type == "TimeStamp">.renderWith(timeStampFormat)</#if><#if col.type == "Date">.renderWith(dateRender)</#if><#if col.camelName == "remark">.renderWith(remarkDetail)</#if><#if col.camelName == "status">.renderWith(statusRender)</#if><#if col.inVisible = 1>.notVisible()</#if>,
     <#if col.primaryKey = 1>
@@ -88,7 +102,7 @@ $("#loadDiv").hide();
 //超长备注处理start
 function remarkDetail(data, type, full, meta){
 if(data!=null){
-return '<span class="spanFun" style=" display: inline-block;width: 200px;white-space:nowrap;word-break:keep-all;overflow:hidden;text-overflow:ellipsis;">'+data+'</span>'
+return '<span title="'+data+'" class="spanFun" style=" display: inline-block;width: 200px;white-space:nowrap;word-break:keep-all;overflow:hidden;text-overflow:ellipsis;">'+data+'</span>'
 }else{
 return '';
 }
@@ -117,6 +131,7 @@ dialogItself.close();
 }]
 });
 });
+
 //超长备注处理end
 function actionsHtml(data, type, full, meta) {
 vm.beans[data.${lowerPk}] = data;
@@ -131,6 +146,49 @@ return '<button class="btn btn-warning" data-toggle="modal" data-target="#myModa
     + '   <i class="fa fa-trash-o"></i>'
     + '</button>';
 }
+
+vm.searchReset = searchReset;
+
+function searchReset() {
+vm.beanSer = null;
+}
+
+//---批量start
+//多选
+function toggleAll(selectAll, selectedItems) {
+for (var id in selectedItems) {
+if (selectedItems.hasOwnProperty(id)) {
+selectedItems[id] = selectAll;
+}
+}
+
+}
+
+//单选
+function toggleOne(selectedItems) {
+for (var id in selectedItems) {
+if (selectedItems.hasOwnProperty(id)) {
+if (!selectedItems[id]) {
+vm.selectAll = false;
+return;
+}
+}
+}
+vm.selectAll = true;
+}
+
+
+function addOrChangeTableCheckboxAll() {
+//批量删除 start
+vm.selectAll = false;
+var $html = $compile(titleHtml)($scope);
+var obj_p = $("#checkbox_all_id").parent();
+$("#checkbox_all_id").remove();
+obj_p.append($html);
+//批量删除 end
+}
+
+//---批量end
 
 function addInit() {
 vm.modelTitle = $translate.instant('${lowerBean}.${lowerBean}Add');
@@ -267,20 +325,16 @@ function selectBank(){
 
 }
 
+//解决批量删除本页全部记录,会把之前访问页面的记录也删除start
+$('#table_id').on('page.dt', function () {
+//var info =  $('#table_id').DataTable().page.info();
+vm.selected = {};
+});
+//解决批量删除本页全部记录,会把之前访问页面的记录也删除end
 //解决查询后保持列的显示start
-$('#table_id').on( 'init.dt', function ( e, settings, column, state ) {
-var flag = $(".dataTables_scrollBody").css("overflow");
-if(flag='visible'){
-}
-if(flag='auto'){
-$(".dataTables_scroll").attr("style","overflow:auto");
-$(".dataTables_scrollHead").css("overflow", "");
-$(".dataTables_scrollBody").css("overflow", "");
-$(".dataTables_scrollBody").attr("style","border:0px");
-$("#table_id").attr("style","border-bottom:1px solid black");
-}
+$('#table_id').on('init.dt', function (e, settings, column, state) {
 vm.columnStatusData = settings.aoColumns;
-} );
+});
 //解决查询后保持列的显示end
 //start
 $('#table_id').on('draw.dt',function() {
@@ -317,6 +371,7 @@ function reloadData() {
 }
 function callback(json) {
 //console.log(json);
+addOrChangeTableCheckboxAll()
 }
 function createdRow(row, data, dataIndex) {
 $compile(angular.element(row).contents())($scope);

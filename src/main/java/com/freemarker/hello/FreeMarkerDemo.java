@@ -84,15 +84,15 @@ public class FreeMarkerDemo {
             createFile(configuration, "TemplateService.ftl", FileInfo.JAVA_SERVICE);
             createFile(configuration, "TemplateServiceImpl.ftl", FileInfo.JAVA_SERVICE_IMPL);
 
-            createFile(configuration, "TemplateControllerJs.ftl", FileInfo.JS_CONTROLLER);
+            /*createFile(configuration, "TemplateControllerJs.ftl", FileInfo.JS_CONTROLLER);
             createFile(configuration, "TemplateHtml.ftl", FileInfo.HTML);
-            createFile(configuration, "TemplateServiceJs.ftl", FileInfo.JS_SERVICE);
+            createFile(configuration, "TemplateServiceJs.ftl", FileInfo.JS_SERVICE);*/
 
             createFile(configuration, "TemplateMapper.ftl", FileInfo.DB_MAPPER);
             createFile(configuration, "TemplateBean.ftl", FileInfo.DB_BEAN);
             createFile(configuration, "TemplateMapperXml.ftl", FileInfo.DB_MAPPER_XML);
 
-            createFile(configuration, "zhTemplate.ftl", FileInfo.I18N);
+//            createFile(configuration, "zhTemplate.ftl", FileInfo.I18N);
 
         } catch (Exception e) {
             e.printStackTrace();

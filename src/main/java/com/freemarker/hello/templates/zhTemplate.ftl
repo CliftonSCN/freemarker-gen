@@ -1,7 +1,7 @@
 <#list camelColumns as col>
-    "${lowerBean}.${col.camelName}":"${col.camelName}",
-    "${lowerBean}.${col.camelName}.notEmpty":"${col.camelName} can not be empty",
-    "${lowerBean}.${col.camelName}.length":"${col.camelName} cannot exceed 32 bits",
+    "${lowerBean}.${col.camelName}":"${col.upperName}",
+    "${lowerBean}.${col.camelName}.notEmpty":"${col.upperName} can not be empty",
+    "${lowerBean}.${col.camelName}.length":"${col.upperName} cannot exceed 32 bits",
 </#list>
 <#if foreignNames??>
 <#list foreignNames as foreignName>
