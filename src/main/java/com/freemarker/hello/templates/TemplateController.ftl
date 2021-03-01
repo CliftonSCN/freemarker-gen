@@ -118,12 +118,16 @@ public ResponseRestEntity<Void> create${bean}(@Valid @RequestBody ${bean} bean,B
     }
     <#list camelColumns as col>
         <#if col.type == "TimeStamp">
-            bean.set${col.upperName}(com.zbensoft.${projectName}.api.common.DateUtil.dateToTimeStamp(bean.get${col.upperName}()));
+            bean.set${col.upperName}(DateUtil.dateToTimeStamp(bean.get${col.upperName}()));
         </#if>
     </#list>
 
     <#if pk??>
-        bean.set${pk}("${tableNameAbbr}"+ com.zbensoft.${projectName}.common.util.DateUtil.convertDateToString(new Date(), DateUtil.DATE_FORMAT_THIRTEEN));
+        bean.set${pk}("${tableNameAbbr}"+ IDGenerate.generateCommTwo(IDGenerate.${authorize}));
+    </#if>
+
+    <#if pk??>
+        bean.set${pk}("${tableNameAbbr}"+ DateUtil.convertDateToString(new Date(), DateUtil.DATE_FORMAT_THIRTEEN));
     </#if>
 
 
@@ -155,7 +159,7 @@ public ResponseRestEntity<${bean}> update${bean}(@PathVariable("id") String id,@
     }
     <#list camelColumns as col>
         <#if col.type == "TimeStamp">
-            beanSelect.set${col.upperName}(com.zbensoft.${projectName}.api.common.DateUtil.dateToTimeStamp(bean.get${col.upperName}()));
+            beanSelect.set${col.upperName}(DateUtil.dateToTimeStamp(bean.get${col.upperName}()));
         <#else>
             beanSelect.set${col.upperName}(bean.get${col.upperName}());
         </#if>

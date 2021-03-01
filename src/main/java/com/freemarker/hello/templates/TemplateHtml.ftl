@@ -14,7 +14,8 @@
     <div class="content-wrapper">
         <section class="content-header">
             <h1 translate="common.${lowerBean}"></h1>
-            <button class="c-g-header-button" ng-click="ctrl.addInit()">
+            <button class="c-g-header-button" data-toggle="modal" data-target="#myModal" ng-click="ctrl.addInit()">
+                <img src="img/add.jpg">
                 <span translate="common.add"></span>
             </button>
             <#--<ol class="breadcrumb">

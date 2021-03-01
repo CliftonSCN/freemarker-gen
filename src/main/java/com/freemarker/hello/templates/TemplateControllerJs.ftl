@@ -42,15 +42,14 @@ vm.columnStatusData=[];
 //列的状态end
 vm.reloadData = reloadData;
 vm.dtOptions = DTOptionsBuilder.fromSource(getFromSource(apiUrl + '/${lowerBean}')).withOption(
-'createdRow', createdRow);
+'createdRow', createdRow).withOption('headerCallback', function(header) {
+$(".dt-buttons").hide();//隐藏可见列
+gogal_tableStyle();
+})
+.withPaginationType('full_numbers');
 
 setDtOptionsServerSide(vm);
 vm.dtColumns = [
-    DTColumnBuilder.newColumn('${lowerPk}').withTitle("<input type='checkbox' id='checkbox_all_id'>").notSortable()
-    .renderWith(function (data, type, full, meta) {
-    vm.selected[data] = false;
-    return '<input type="checkbox" ng-model="ctrl.selected[\'' + data + '\']" ng-click="ctrl.toggleOne(ctrl.selected)">';
-    }),
 <#list camelColumns as col>
     DTColumnBuilder.newColumn('${col.camelName}').withTitle($translate('${lowerBean}.${col.camelName}')).notSortable()<#if col.type == "TimeStamp">.renderWith(timeStampFormat)</#if><#if col.type == "Date">.renderWith(dateRender)</#if><#if col.camelName == "remark">.renderWith(remarkDetail)</#if><#if col.camelName == "status">.renderWith(statusRender)</#if><#if col.inVisible = 1>.notVisible()</#if>,
     <#if col.primaryKey = 1>
@@ -241,11 +240,11 @@ function dateRender(data) {
             naLan = navigator.browserLanguage;
         }
         if(naLan=='zh'){
-            return  moment(date).format("YYYY-MM-DD HH:mm:ss");
+            return  moment(data).format("YYYY-MM-DD HH:mm:ss");
         }else if(naLan.indexOf("zh") >= 0){
-            return  moment(date).format("YYYY-MM-DD HH:mm:ss");
+            return  moment(data).format("YYYY-MM-DD HH:mm:ss");
         }else{
-            return  moment(date).format("DD/MM/YYYY HH:mm:ss");
+            return  moment(data).format("DD/MM/YYYY HH:mm:ss");
         }
     }
 }
@@ -261,6 +260,9 @@ return '';
 }
 
 function submit() {
+
+
+
 if (!vm.readonlyID) {
     $.fn.dataTable.ext.errMode = 'none';
     ${bean}Service.create${bean}(vm.bean).then(onSubmitSuccess,
